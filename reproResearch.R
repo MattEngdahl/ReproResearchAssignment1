@@ -29,6 +29,17 @@ plot(interval.steps[,1], interval.steps[,2], type = "l", main = "Average steps t
 sum(is.na(data$steps))
 
 ## Strategy; use median value for each relevant time interval as closest approximation
+### 1. Calculate median steps for each interval
 interval.steps.median <- aggregate(data$steps, list(data$interval), FUN = "median", na.rm = TRUE)
 colnames(interval.steps.median) <- c("interval", "median.steps")
-dplyr::full_join(data, interval.steps.median, by = "interval")
+
+### 2. Merge data and interval.steps.median dataframes
+merged <- dplyr::full_join(data, interval.steps.median, by = "interval")
+
+### 3. Replace NA's in steps with values in interval.steps.median
+merged$steps[is.na(merged$steps)] <- merged$median.steps[is.na(merged$steps)]
+
+### 4. Delete interval.steps.median variable
+merged <- merged[,1:ncol(merged) - 1]
+
+
